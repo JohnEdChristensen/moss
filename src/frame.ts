@@ -1,13 +1,14 @@
 import vs_source from './shaders/vertex.glsl'
 import fs_source from './shaders/fragment.glsl'
-
-
+import { Color } from './util'
+import { mat4 } from 'gl-matrix'
 type Frame = {
   gl: WebGLRenderingContext,
   program: WebGLProgram,
+  canvas: HTMLCanvasElement
   viewMatrixLocation: WebGLUniformLocation,
   uniforms: {
-    viewMatrix: number[]
+    viewMatrix: mat4
   }
   vbos: {
     positions: number[]
@@ -19,18 +20,22 @@ type Frame = {
   }
 }
 
-export function createFrame(positions: number[], colors: number[], viewMatrix: number[]): Frame {
+
+export function createFrame(positions: number[],
+  colors: number[],
+  viewMatrix: mat4,
+  backgroundColor: Color = [253 / 255, 246 / 255, 227 / 255, 1.0]
+): Frame {
   // Initialize WebGL
   const canvas = document.getElementById('glCanvas') as HTMLCanvasElement;
-  canvas.width = window.innerWidth
-  canvas.height = window.innerHeight
   const gl = canvas.getContext('webgl');
 
   if (!gl) {
     throw ('Unable to initialize WebGL. Your browser may not support it.');
   }
 
-  gl.clearColor(253 / 255, 246 / 255, 227 / 255, 1.0)
+
+  gl.clearColor(...backgroundColor)
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   // Set the output resolution and viewport
@@ -39,7 +44,7 @@ export function createFrame(positions: number[], colors: number[], viewMatrix: n
   // const pixelRatio = 1//window.devicePixelRatio || 1;
   // canvas.width = pixelRatio * canvas.clientWidth;
   // canvas.height = pixelRatio * canvas.clientHeight;
-  gl.viewport(0, 0, canvas.width, canvas.height);
+  updateViewport(gl, canvas)
 
   gl.lineWidth(1.0);	// we are not really drawing lines in this example, so this command is totally unnecessary.
 
@@ -49,35 +54,12 @@ export function createFrame(positions: number[], colors: number[], viewMatrix: n
   // We can update the contents of the vertex buffer objects anytime.
   // We do NOT need to create them again.
 
-
   //create
-  const position_buffer = gl.createBuffer();
-
-  //bind (later options will apply to this buffer)
-  gl.bindBuffer(
-    gl.ARRAY_BUFFER,
-    position_buffer);
-
-  //use
-  gl.bufferData(
-    gl.ARRAY_BUFFER,
-    new Float32Array(positions),
-    gl.STATIC_DRAW);
-
+  const position_buffer = gl.createBuffer()!;
+  setBufferData(gl, position_buffer, positions)
   //create
-  const color_buffer = gl.createBuffer();
-
-  //bind (later options will apply to this buffer)
-  gl.bindBuffer(
-    gl.ARRAY_BUFFER,
-    color_buffer);
-
-  //use
-  gl.bufferData(
-    gl.ARRAY_BUFFER,
-    new Float32Array(colors),
-    gl.STATIC_DRAW);
-
+  const color_buffer = gl.createBuffer()!;
+  setBufferData(gl, color_buffer, colors)
 
   ///////////////////////////////////////////////////////////////////////
   // Compile the vertex and fragment shaders into a program
@@ -163,56 +145,76 @@ export function createFrame(positions: number[], colors: number[], viewMatrix: n
   // Now that everything is ready, we can render the scene.
   // Rendering begins with clearing the image.
   // Every time the scene changes, we must render again.
-  return { gl: gl, program: prog, viewMatrixLocation: viewMatrixLocation!, uniforms: uniforms, vbos: vbos, buffers: buffers }
-  //draw(gl, 0)
+  return {
+    gl: gl,
+    program: prog,
+    canvas: canvas,
+    viewMatrixLocation: viewMatrixLocation!,
+    uniforms: uniforms,
+    vbos: vbos,
+    buffers: buffers
+  }
 }
 
-export function draw(frame: Frame, userDraw: (frame: Frame, t: number) => Frame, t: number = 0) {
-  const { gl, program, viewMatrixLocation } = frame
+
+export function draw(oldFrame: Frame, userDraw: (frame: Frame, t: number) => Frame, t: number = 0) {
+  const { gl, program, canvas, viewMatrixLocation } = oldFrame
+  updateViewport(gl, canvas)
+
+  const widthRatio = canvas.width / canvas.height
+  const heightRatio = 1 / widthRatio
+  //scale view to aspect ratio
+  const projection = mat4.create()
+
+  // The smaller dimension should be 1 to -1, the larger should be scaled by how much larger it is
+  const right = widthRatio < 1 ? 1 : widthRatio
+  const left = -right
+  const top = heightRatio < 1 ? 1 : heightRatio
+  const bottom = -top
+
+  mat4.ortho(projection, left, right, bottom, top, 0, 1)
+
+
   gl.clear(gl.COLOR_BUFFER_BIT);
   gl.useProgram(program);
 
-  const { uniforms, vbos, buffers } = userDraw(frame, t)
+  const nextFrame = userDraw(oldFrame, t)
+  const { buffers, vbos, uniforms } = nextFrame
 
-  // //bind (later options will apply to this buffer)
-  gl.bindBuffer(
-    gl.ARRAY_BUFFER,
-    buffers.position);
 
-  //use
-  gl.bufferData(
-    gl.ARRAY_BUFFER,
-    new Float32Array(vbos.positions),
-    gl.STATIC_DRAW);
+  const finalViewMatrix = mat4.create()
+  mat4.multiply(finalViewMatrix, projection, uniforms.viewMatrix)
 
-  //bind (later options will apply to this buffer)
-  gl.bindBuffer(
-    gl.ARRAY_BUFFER,
-    buffers.color);
+  gl.useProgram(program); // double check user didn't change programs
 
-  //use
-  gl.bufferData(
-    gl.ARRAY_BUFFER,
-    new Float32Array(vbos.colors),
-    gl.STATIC_DRAW);
-  // //
-  // //
-  // const p = gl.getAttribLocation(program, 'pos');
-  // gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
-  // gl.vertexAttribPointer(p, 3, gl.FLOAT, false, 0, 0);
+
   //
-  // const c = gl.getAttribLocation(program, 'clr');
-  // gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color);
-  // gl.vertexAttribPointer(c, 4, gl.FLOAT, false, 0, 0);
+  setBufferData(gl, buffers.position, vbos.positions)
+  setBufferData(gl, buffers.color, vbos.colors)
 
-  gl.useProgram(program);
-  gl.uniformMatrix4fv(viewMatrixLocation, false, uniforms.viewMatrix);
+  gl.uniformMatrix4fv(viewMatrixLocation, false, finalViewMatrix)//uniforms.viewMatrix);
 
   gl.lineWidth(3)
 
   gl.drawArrays(gl.LINES, 0, vbos.positions.length / 3);
-  requestAnimationFrame((t) => draw(frame, userDraw, t))
+  requestAnimationFrame((t) => draw(nextFrame, userDraw, t / 1000))
 }
 
 
+const setBufferData = (gl: WebGLRenderingContext, buffer: WebGLBuffer, data: number[]) => {
+  gl.bindBuffer(
+    gl.ARRAY_BUFFER,
+    buffer);
 
+  //use
+  gl.bufferData(
+    gl.ARRAY_BUFFER,
+    new Float32Array(data),
+    gl.STATIC_DRAW);
+}
+
+const updateViewport = (gl: WebGLRenderingContext, canvas: HTMLCanvasElement) => {
+  canvas.width = canvas.clientWidth
+  canvas.height = canvas.clientHeight
+  gl.viewport(0, 0, canvas.width, canvas.height);
+}
