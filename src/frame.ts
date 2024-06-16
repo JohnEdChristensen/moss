@@ -2,7 +2,7 @@ import vs_source from './shaders/vertex.glsl'
 import fs_source from './shaders/fragment.glsl'
 import { Color } from './util'
 import { mat4 } from 'gl-matrix'
-type Frame = {
+export type Frame = {
   gl: WebGLRenderingContext,
   program: WebGLProgram,
   canvas: HTMLCanvasElement
@@ -163,6 +163,7 @@ export function draw(oldFrame: Frame, userDraw: (frame: Frame, t: number) => Fra
 
   const widthRatio = canvas.width / canvas.height
   const heightRatio = 1 / widthRatio
+
   //scale view to aspect ratio
   const projection = mat4.create()
 
@@ -172,7 +173,9 @@ export function draw(oldFrame: Frame, userDraw: (frame: Frame, t: number) => Fra
   const top = heightRatio < 1 ? 1 : heightRatio
   const bottom = -top
 
-  mat4.ortho(projection, left, right, bottom, top, 0, 1)
+  //mat4.ortho(projection, left, right, bottom, top, 0, 1000)
+  mat4.perspective(projection, Math.PI / 16, widthRatio, null, null)
+  //mat4.identity(projection)
 
 
   gl.clear(gl.COLOR_BUFFER_BIT);
@@ -194,7 +197,7 @@ export function draw(oldFrame: Frame, userDraw: (frame: Frame, t: number) => Fra
 
   gl.uniformMatrix4fv(viewMatrixLocation, false, finalViewMatrix)//uniforms.viewMatrix);
 
-  gl.lineWidth(3)
+  gl.lineWidth(1)
 
   gl.drawArrays(gl.LINES, 0, vbos.positions.length / 3);
   requestAnimationFrame((t) => draw(nextFrame, userDraw, t / 1000))

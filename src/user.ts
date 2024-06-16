@@ -21,6 +21,7 @@ const colors = positions.flat()
   .map((p) => [...p, 1])
   .map(p => [p[0] + .5, p[1] + .5, p[2] + .4, p[3]])
 
+
 export function run() {
   const frame = createFrame([], [], mat4.create());
 

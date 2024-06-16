@@ -30,3 +30,9 @@ export function pointsToLineSegments(points: Point3D[]) {
   return points
     .map((p, i, a) => i < a.length - 1 ? [p, a[i + 1]] : [a[i], a[0]])
 }
+
+export function fold<Acc, V>(reducer: (acc: Acc, v: V) => Acc, init: Acc, data: V[]) {
+  let acc = init
+  data.forEach((v) => { acc = reducer(acc, v) })
+
+}

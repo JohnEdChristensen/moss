@@ -1,4 +1,4 @@
-import { run } from './user';
+import { run } from './l-systems/user.ts';
 
 
 window.onload = async function() {
