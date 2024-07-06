@@ -242,3 +242,18 @@ const updateViewport = (gl: WebGLRenderingContext, canvas: HTMLCanvasElement) =>
   }
   return false
 }
+
+
+
+import { useEffect } from "react"
+
+export function Frame() {
+  useEffect(() => {
+
+  })
+  return (
+    <>
+    <canvas id= "glCanvas" > </canvas>
+    </>
+  )
+}

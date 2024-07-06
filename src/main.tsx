@@ -1,14 +1,19 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "./App.css";
+
+import { ThemeProvider } from "./system/theme.tsx";
+import { App } from "./App.tsx";
 import "./style.css"
 
-import { Frame } from "./Frame.tsx";
-import { TitleBar } from "./components/TitleBar.tsx";
+function Root() {
+  return <App />
+}
+
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <TitleBar />
-    <Frame />
+    <ThemeProvider>
+      <Root />
+    </ThemeProvider>
   </React.StrictMode>,
 );

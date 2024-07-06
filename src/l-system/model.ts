@@ -1,4 +1,4 @@
-import { Color } from "../util"
+import { Color } from "../util/util"
 
 export type Character<C extends string = any> = C
 type Rules<T extends Character> = Map<T, T[]>

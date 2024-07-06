@@ -1,7 +1,18 @@
 import { mat4 } from "gl-matrix";
-import { createFrame, draw } from "../frame";
-import { Character, ActionMap, Action, systems, evaluateRules } from "./l-systems";
-import { Color, Point3D, range } from "../util";
+import { createFrame, draw } from "../web-gl/frame";
+import { Character, ActionMap, Action, systems, evaluateRules } from "./model";
+import { Color, Point3D, range } from "../util/util";
+import { MossSvg } from "../svg/moss-svg";
+import { useTheme } from "../system/theme";
+
+
+export function L_System() {
+  const theme = useTheme()
+  return <MossSvg>
+    <path stroke={theme.colors.accent1} d="M 0 0 V 100" />
+  </MossSvg >
+}
+
 
 type Context = {
   angle: number,
@@ -61,9 +72,9 @@ function processAction(state: State, action?: Action,): State {
   }
 }
 
-// const range = (list: number[]) => Math.max(...list) - Math.min(...list)
 
-export function run() {
+
+export function webgl_run() {
 
   const btree = systems["plant"]
   const sequence = evaluateRules(btree, 5)
@@ -134,3 +145,5 @@ const scaleToBounds = (points: Point3D[], marginPercent: number = 0) => {
   mat4.translate(transformMatrix, scaleMatrix, [-dx, -dy, 0])
   return transformMatrix
 }
+
+
