@@ -1,6 +1,6 @@
 import vs_source from './shaders/vertex.glsl'
 import fs_source from './shaders/fragment.glsl'
-import { Color } from './util'
+import { Color } from '../util/util'
 import { mat4 } from 'gl-matrix'
 import _ from 'lodash'
 export type Frame = {
@@ -253,7 +253,7 @@ export function Frame() {
   })
   return (
     <>
-    <canvas id= "glCanvas" > </canvas>
+      <canvas id="glCanvas" > </canvas>
     </>
   )
 }

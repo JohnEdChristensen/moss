@@ -1,6 +1,6 @@
 import { mat4 } from "gl-matrix";
 import { createFrame, draw } from "./frame";
-import { Point3D, linspace, pointsToLineSegments } from "./util";
+import { Point3D, linspace, pointsToLineSegments } from "../util/util";
 
 
 

@@ -36,3 +36,6 @@ export function fold<Acc, V>(reducer: (acc: Acc, v: V) => Acc, init: Acc, data: 
   data.forEach((v) => { acc = reducer(acc, v) })
 
 }
+
+
+export const zip = <T, K>(a: T[], b: K[]): [T, K][] => a.map((e, i) => [e, b[i]])

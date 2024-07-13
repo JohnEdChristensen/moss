@@ -1,16 +1,21 @@
 import { useTheme, VSeperator } from "./system/theme"
 import { MenuItem, TitleBar } from "./system/TitleBar"
-import { Frame } from "./web-gl/frame"
 import { SvgEditor } from "./svg/svg-editor"
 
 import "./style.css"
 import { useState } from "react"
 import { LogicCanvas } from "./svg/logic-gates"
 import { L_System } from "./l-system/render"
+import { Geo } from "./geo/geo"
+import { MossSvg } from "./svg/moss-svg"
+import { Piano } from "./music/piano"
+import { Asteroids } from "./asteroid/asteroidGame"
 
 const modes = [
+  "Asteroids",
+  "Keys",
+  "Geo",
   "L-Systems",
-  "GL",
   "SVG",
   "Logic-gates"
 ] as const
@@ -47,16 +52,28 @@ export function App() {
 }
 
 function MainContent({ mode = "SVG" }: { mode: Mode }) {
-  if (mode == "GL") {
-    return <Frame />
-  }
   if (mode == "SVG") {
     return <SvgEditor />
   }
   if (mode == "L-Systems") {
     return <L_System />
   }
+  if (mode == "Geo") {
+    return <MossSvg>
+      <Geo />
+    </MossSvg>
+  }
   if (mode == "Logic-gates") {
     return <LogicCanvas />
+  }
+  if (mode == "Keys") {
+    return <MossSvg>
+      <Piano />
+    </MossSvg>
+  }
+  if (mode == "Asteroids") {
+    return <MossSvg>
+      <Asteroids />
+    </MossSvg>
   }
 }

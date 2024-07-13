@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 
 import { ThemeProvider } from "./system/theme.tsx";
-import { App } from "./App.tsx";
+import { App } from "./Moss.tsx";
 import "./style.css"
 
 function Root() {

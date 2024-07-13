@@ -3,10 +3,12 @@ import { createContext, useContext, useState, ReactNode, CSSProperties } from 'r
 // Theme definitions
 export const darkColors = {
   fg: "#D3C6AA",
-  bg: "#2D353B", //bg0
-  bgHover: "#343F44", //bg1
-  bgSelected: "#D3C6AACC",//bg4
-  // borderColor: "#7A8478",
+  bg: "#2D353B",
+  bgHover: "#343F44",
+  bgSelected: "#D3C6AACC",
+  fgSelected: "#baaf96",
+  fgHover: "#eddfc0",
+  neutral: "#859289",
   borderColor: "#D3C6AA",
   accent1: "#A7C080",
   accent2: "#DBBC7F",
@@ -17,7 +19,10 @@ export const lightColors = {
   fg: "#5C6A72",
   bg: "#FDF6E3",
   bgHover: "#F4F0D9",
-  bgSelected: "#8DA101AA",//bg4
+  bgSelected: "#8DA101AA",
+  fgHover: "#677780 ",
+  fgSelected: "#525f66",
+  neutral: "#939F91",
   borderColor: "#8DA101",
   accent1: "#8DA101",
   accent2: "#DFA000",
@@ -56,7 +61,10 @@ function getTheme(isDarkMode: boolean): Theme {
 
   return {
     isDarkMode,
-    colors,
+    colors: {
+      ...colors, bg: colors.bg.concat("77"),
+      //fg: colors.fg.concat("00")
+    },
     styleConstants,
     styles
   }

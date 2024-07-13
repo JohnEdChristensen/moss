@@ -9,7 +9,7 @@ export function LogicAnd() {
 }
 
 //TODO finish this!
-function screenToCanvas(x: number, y: number, width: number, height: number) {
+export function screenToCanvas(x: number, y: number, width: number, height: number) {
   return { x: width / 2 + x, y: height / 2 - y }
 }
 export function LogicCanvas() {
@@ -17,7 +17,7 @@ export function LogicCanvas() {
 
   const { width, height } = useWindowSize()
   const { x: svgHeight, y: svgWidth } = { x: width / 2, y: height / 2 }
-  const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 })
+  const [mousePosition,] = useState<{ x: number, y: number }>({ x: 0, y: 0 })
 
 
   return <svg
